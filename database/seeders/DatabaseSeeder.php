@@ -164,6 +164,41 @@ class DatabaseSeeder extends Seeder
                     ['poll_id' => 1, 'label' => 'Réponse C', 'created_at' => new \DateTime('2026-04-19 10:00:00'), 'updated_at' => new \DateTime('2026-04-19 10:00:00')],
                     ['poll_id' => 1, 'label' => 'La réponse D', 'created_at' => new \DateTime('2026-04-19 10:00:00'), 'updated_at' => new \DateTime('2026-04-19 10:00:00')],
                 ]);
+
+                // Insert 20 example polls for frontend tests
+                $polls = [];
+                $pollOptions = [];
+
+                for ($i = 2; $i <= 20; $i++) {
+                    $polls[] = [
+                        'id' => $i,
+                        'user_id' => 1,
+                        'title' => "Poll de test #{$i}",
+                        'question' => "Quel est votre choix pour le sondage #{$i} ?",
+                        'secret_token' => Str::random(32),
+                        'is_draft' => $i % 3 === 0,
+                        'allow_multiple_choices' => false,
+                        'allow_vote_change' => $i % 2 === 0,
+                        'results_public' => $i % 2 !== 0,
+                        'duration' => null,
+                        'started_at' => null,
+                        'ends_at' => null,
+                        'created_at' => new \DateTime(sprintf('2026-04-19 10:%02d:00', 5 + $i)),
+                        'updated_at' => new \DateTime(sprintf('2026-04-19 10:%02d:00', 5 + $i)),
+                    ];
+
+                    foreach (['Option A', 'Option B', 'Option C'] as $label) {
+                        $pollOptions[] = [
+                            'poll_id' => $i,
+                            'label' => $label,
+                            'created_at' => new \DateTime(sprintf('2026-04-19 10:%02d:00', 5 + $i)),
+                            'updated_at' => new \DateTime(sprintf('2026-04-19 10:%02d:00', 5 + $i)),
+                        ];
+                    }
+                }
+
+                DB::table('polls')->insert($polls);
+                DB::table('poll_options')->insert($pollOptions);
             }
         );
     }

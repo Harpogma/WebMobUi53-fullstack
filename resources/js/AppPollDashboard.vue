@@ -4,11 +4,6 @@
   import { useFetchApi } from './composables/useFetchApi';
   import { usePolling } from './composables/usePolling';
 
-  const props = defineProps({
-    polls: { type: Array, default: () => [] },
-    loginUrl: { type: String, default: null },
-  });
-
   const { fetchApiToRef } = useFetchApi();
 
   const { data: getResult, error: getError, fetchNow } = fetchApiToRef({ url: 'polls/' });
@@ -33,9 +28,9 @@
   <main class="min-h-screen p-6">
     <h1 class="mb-4 text-xl font-semibold">Mes sondages</h1>
 
-    <PollTable :polls="props.polls" />
+    <PollTable />
 
-    <section class="mt-6">
+    <!-- <section class="mt-6">
       <h2>GET /api/v1/polls</h2>
       <pre v-if="getResult">{{ getResult }}</pre>
       <p v-else>Chargement...</p>
@@ -45,6 +40,6 @@
       <h2>POST /api/v1/foo</h2>
       <pre v-if="postResult">{{ postResult }}</pre>
       <p v-else>Chargement...</p>
-    </section>
+    </section> -->
   </main>
 </template>

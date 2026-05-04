@@ -1,6 +1,7 @@
 import './bootstrap';
 
 import App from './AppPollDashboard.vue';
+import { polls } from "./store/polls";
 
 import { createApp } from "vue";
 import { Quasar } from "quasar";
@@ -8,15 +9,23 @@ import { Quasar } from "quasar";
 import "@quasar/extras/material-icons/material-icons.css";
 import "quasar/dist/quasar.css";
 
-
 const el = document.getElementById('app');
 const props = JSON.parse(el.dataset.props ?? '{}');
-const myApp = createApp(App, props);
+polls.value = props.polls;
+
+const myApp = createApp(App);
 
 myApp.use(Quasar, {
     config: {
         brand: {
-            // Définissez ici vos couleurs de thème personnalisées
+            primary: "#7E57C2",
+            secondary: "#B39DDB",
+            accent: "#AB47BC",
+            dark: "#4A148C",
+            positive: "#9575CD",
+            info: "#7E57C2",
+            warning: "#CE93D8",
+            negative: "#E1BEE7",
         },
     },
     plugins: {},
