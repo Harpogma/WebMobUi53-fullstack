@@ -18,8 +18,11 @@ Route::apiResource('v1/posts', ApiPostController::class)
 
 Route::get('/v1/polls/{token}', [ApiPollController::class, 'show']);
 
+
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/v1/foo', [ApiFooController::class, 'show']);
     Route::post('/v1/foo', [ApiFooController::class, 'store']);
     Route::get('/v1/polls', [ApiPollController::class, 'index']);
+    Route::delete('/v1/poll/{id}', [ApiPollController::class, 'destroy']);
 });

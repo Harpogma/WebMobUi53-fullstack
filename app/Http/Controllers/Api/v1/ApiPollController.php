@@ -33,4 +33,16 @@ class ApiPollController extends Controller
 
         return $poll;
     }
+
+    public function destroy(Request $request, int $id) {
+        sleep(1);
+        $poll = $request->user()->polls()->find($id);
+
+        if (!$poll) {
+            return response()->json(['message' => 'Poll not found']);
+        }
+
+        $poll->delete();
+        return response()->json(['message' => 'Poll deleted'], 200);
+    }
 }

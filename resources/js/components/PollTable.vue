@@ -1,9 +1,23 @@
 <script setup>
-import { deletePoll, polls} from '../store/polls';
+import { deletePoll, polls} from '@/store/polls';
+import { useQuasar } from "quasar";
 
-  function handleDelete(poll) {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le sondage "${poll.title}" ?`)) {
-        deletePoll(poll.id);
+    const q = useQuasar();
+
+
+  async function handleDelete(poll) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le sondage "${poll.title}" ?`)) return;
+
+    try {
+        q.loading.show({
+            message: "Suppression du sondage...",
+        });
+        await deletePoll(poll.id);
+    } catch (error) {
+        console.error(`Error deleting poll with id ${poll.id}:`, error);
+    } finally {
+        console.log("Suppression terminée.");
+        q.loading.hide();
     }
   }
 

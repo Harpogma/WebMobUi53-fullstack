@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
+import { fileURLToPath } from "node:url";
 
 export default defineConfig({
     plugins: [
@@ -31,7 +32,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            "@": "/src",
+            "@": fileURLToPath(new URL("./resources/js", import.meta.url)),
         },
     },
 });
