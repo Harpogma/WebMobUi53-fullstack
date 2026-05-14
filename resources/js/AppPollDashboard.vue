@@ -1,8 +1,14 @@
 <script setup>
   import { watch } from 'vue';
   import PollTable from './components/PollTable.vue';
+  import CreatePollDialog from './components/CreatePollDialog.vue';
   import { useFetchApi } from './composables/useFetchApi';
   import { usePolling } from './composables/usePolling';
+  import { showCreateDialog } from './store/polls';
+
+  const props = defineProps({
+    loginUrl: { type: String, required: true },
+  });
 
   const { fetchApiToRef } = useFetchApi();
 
@@ -28,18 +34,12 @@
   <main class="min-h-screen p-6">
     <h1 class="mb-4 text-xl font-semibold">Mes sondages</h1>
 
+    <q-btn class="mb-4" color="primary" label="Créer un nouveau sondage" icon="add" @click="showCreateDialog = true"/>
+
     <PollTable />
 
-    <!-- <section class="mt-6">
-      <h2>GET /api/v1/polls</h2>
-      <pre v-if="getResult">{{ getResult }}</pre>
-      <p v-else>Chargement...</p>
-    </section>
-
-    <section class="mt-4">
-      <h2>POST /api/v1/foo</h2>
-      <pre v-if="postResult">{{ postResult }}</pre>
-      <p v-else>Chargement...</p>
-    </section> -->
+    <q-dialog v-model="showCreateDialog">
+      <CreatePollDialog />
+    </q-dialog>
   </main>
 </template>

@@ -13,7 +13,7 @@ const el = document.getElementById('app');
 const props = JSON.parse(el.dataset.props ?? '{}');
 polls.value = props.polls;
 
-const myApp = createApp(App);
+const myApp = createApp(App, { loginUrl: props['login-url'] });
 
 myApp.use(Quasar, {
     config: {

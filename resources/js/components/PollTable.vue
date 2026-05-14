@@ -2,7 +2,7 @@
 import { deletePoll, polls} from '@/store/polls';
 import { useQuasar } from "quasar";
 
-    const q = useQuasar();
+	const q = useQuasar();
 
 
   async function handleDelete(poll) {

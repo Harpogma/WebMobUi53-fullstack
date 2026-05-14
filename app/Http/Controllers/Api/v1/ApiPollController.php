@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\Poll;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ApiPollController extends Controller
 {
@@ -32,6 +33,23 @@ class ApiPollController extends Controller
         }
 
         return $poll;
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'question' => 'required|string|max:255',
+            'title'    => 'nullable|string|max:255',
+        ]);
+
+        $poll = new Poll();
+        $poll->user_id = $request->user()->id;
+        $poll->question = $validated['question'];
+        $poll->title = $validated['title'] ?? null;
+        $poll->secret_token = Str::uuid();
+        $poll->save();
+
+        return response()->json($poll, 201);
     }
 
     public function destroy(Request $request, int $id) {
