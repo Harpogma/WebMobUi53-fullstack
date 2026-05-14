@@ -12,17 +12,13 @@ export function fetchPolls() {
 }
 
 export function deletePoll(id) {
-    // Delete the poll in the backend
-
     const { fetchApi } = useFetchApi();
 
     return fetchApi({ url: `/poll/${id}`, method: "DELETE" }).then(() => {
-        // Delete poll in the frontend
         const index = polls.value.findIndex((poll) => poll.id === id);
         if (index !== -1) {
             polls.value.splice(index, 1);
         }
-        console.log(`Poll with id ${id} deleted successfully.`);
     });
 }
 
@@ -31,5 +27,16 @@ export function createPoll(pollData) {
 
     return fetchApi({ url: "/polls", method: "POST", data: pollData }).then((data) => {
         polls.value.unshift(data);
+        return data;
+    });
+}
+
+export function startPoll(id) {
+    const { fetchApi } = useFetchApi();
+
+    return fetchApi({ url: `/polls/${id}/start`, method: "POST" }).then((data) => {
+        const index = polls.value.findIndex((p) => p.id === id);
+        if (index !== -1) polls.value[index] = data;
+        return data;
     });
 }

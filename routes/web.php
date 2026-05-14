@@ -8,6 +8,7 @@ use App\Http\Controllers\PollDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TokenController;
 use App\Models\Post;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,4 +41,11 @@ Route::middleware('auth')->group(function () {
     Route::match(['put', 'patch'], '/likes/{post}', [LikeController::class, 'update']);
     Route::resource('tokens', TokenController::class)->only(['index', 'create', 'store', 'destroy']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+});
+
+Route::get('/polls/{token}', function (string $token) {
+    return view('polls.vote', [
+        'token'      => $token,
+        'authUserId' => Auth::id(),
+    ]);
 });

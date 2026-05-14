@@ -4,7 +4,7 @@ import App from './AppPollDashboard.vue';
 import { polls } from "./store/polls";
 
 import { createApp } from "vue";
-import { Quasar, Loading } from "quasar";
+import { Quasar, Loading, Notify } from "quasar";
 
 import "@quasar/extras/material-icons/material-icons.css";
 import "quasar/dist/quasar.css";
@@ -28,7 +28,7 @@ myApp.use(Quasar, {
             negative: "#E1BEE7",
         },
     },
-    plugins: { Loading },
+    plugins: { Loading, Notify },
 });
 
 myApp.mount(el);

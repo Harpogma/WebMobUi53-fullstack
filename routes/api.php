@@ -17,6 +17,7 @@ Route::apiResource('v1/posts', ApiPostController::class)
     ->middlewareFor(['destroy'], ['auth:sanctum', 'abilities:posts:delete']);
 
 Route::get('/v1/polls/{token}', [ApiPollController::class, 'show']);
+Route::post('/v1/polls/{token}/vote', [ApiPollController::class, 'vote'])->middleware('auth:sanctum');
 
 
 
@@ -25,5 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/v1/foo', [ApiFooController::class, 'store']);
     Route::get('/v1/polls', [ApiPollController::class, 'index']);
     Route::post('/v1/polls', [ApiPollController::class, 'store']);
+    Route::post('/v1/polls/{id}/start', [ApiPollController::class, 'start']);
     Route::delete('/v1/poll/{id}', [ApiPollController::class, 'destroy']);
 });
