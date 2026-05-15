@@ -57,7 +57,9 @@ function copyShareLink(poll) {
         <td class="border px-3 py-2">{{ poll.id }}</td>
         <td class="border px-3 py-2">{{ poll.title || '-' }}</td>
         <td class="border px-3 py-2">{{ poll.question }}</td>
-        <td class="border px-3 py-2">{{ poll.is_draft ? 'Brouillon' : 'Démarré' }}</td>
+        <td class="border px-3 py-2">
+          {{ poll.is_draft ? 'Brouillon' : (poll.ends_at && new Date(poll.ends_at) < new Date() ? 'Terminé' : 'Démarré') }}
+        </td>
         <td class="border px-3 py-2">{{ poll.started_at || '-' }}</td>
         <td class="border px-3 py-2">{{ poll.ends_at || '-' }}</td>
         <td class="border px-3 py-2 q-gutter-xs">

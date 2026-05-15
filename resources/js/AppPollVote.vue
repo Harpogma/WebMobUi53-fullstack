@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useFetchApi } from '@/composables/useFetchApi';
+import { usePolling } from '@/composables/usePolling';
 import { useQuasar } from 'quasar';
 
 const props = defineProps({
@@ -20,15 +21,18 @@ const singleSelected = ref(null);
 const voted       = ref(false);
 const submitting  = ref(false);
 
-onMounted(async () => {
+async function refreshPoll() {
   try {
     poll.value = await fetchApi({ url: `/polls/${props.token}` });
   } catch (err) {
-    fetchError.value = err;
+    if (!poll.value) fetchError.value = err;
   } finally {
     loading.value = false;
   }
-});
+}
+
+onMounted(refreshPoll);
+usePolling(refreshPoll);
 
 const isActive    = computed(() => poll.value && !poll.value.is_draft);
 const isEnded     = computed(() => poll.value?.ends_at && new Date(poll.value.ends_at) < new Date());
