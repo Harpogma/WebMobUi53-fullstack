@@ -14,7 +14,7 @@ class ApiPollController extends Controller
      */
     public function index(Request $request)
     {
-        $polls = $request->user()->polls()->orderBy('created_at', 'desc')->get();
+        $polls = $request->user()->polls()->with('options')->orderBy('created_at', 'desc')->get();
 
         return $polls;
     }
@@ -76,6 +76,61 @@ class ApiPollController extends Controller
         }
 
         return response()->json($poll->load('options'), 201);
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $poll = $request->user()->polls()->find($id);
+
+        if (!$poll) {
+            return response()->json(['message' => 'Poll not found.'], 404);
+        }
+
+        $validated = $request->validate([
+            'question'               => 'sometimes|required|string|max:255',
+            'title'                  => 'nullable|string|max:255',
+            'options'                => 'sometimes|array|min:2',
+            'options.*.id'           => 'nullable|integer',
+            'options.*.label'        => 'required|string|max:255',
+            'allow_multiple_choices' => 'boolean',
+            'results_public'         => 'boolean',
+            'duration'               => 'nullable|integer|min:1',
+        ]);
+
+        if (isset($validated['question'])) {
+            $poll->question = $validated['question'];
+        }
+        if (array_key_exists('title', $validated)) {
+            $poll->title = $validated['title'];
+        }
+        if (isset($validated['allow_multiple_choices'])) {
+            $poll->allow_multiple_choices = $validated['allow_multiple_choices'];
+        }
+        if (isset($validated['results_public'])) {
+            $poll->results_public = $validated['results_public'];
+        }
+        if (array_key_exists('duration', $validated)) {
+            $poll->duration = $validated['duration'] ? $validated['duration'] * 60 : null;
+        }
+
+        $poll->save();
+
+        if (isset($validated['options'])) {
+            $incomingIds = collect($validated['options'])->pluck('id')->filter()->values()->all();
+
+            $poll->options()->whereNotIn('id', $incomingIds)->delete();
+
+            foreach ($validated['options'] as $optionData) {
+                $label = trim($optionData['label']);
+                if (!empty($optionData['id'])) {
+                    $poll->options()->where('id', $optionData['id'])->update(['label' => $label]);
+                } else {
+                    $poll->options()->create(['label' => $label]);
+                }
+            }
+        }
+
+        return response()->json($poll->fresh()->load('options'));
     }
 
     public function start(Request $request, int $id)

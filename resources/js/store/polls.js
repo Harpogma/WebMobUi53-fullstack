@@ -3,6 +3,8 @@ import { useFetchApi } from "../composables/useFetchApi";
 
 export const polls = ref([]);
 export const showCreateDialog = ref(false);
+export const showEditDialog = ref(false);
+export const pollToEdit = ref(null);
 
 export function fetchPolls() {
     const { fetchApi } = useFetchApi();
@@ -27,6 +29,16 @@ export function createPoll(pollData) {
 
     return fetchApi({ url: "/polls", method: "POST", data: pollData }).then((data) => {
         polls.value.unshift(data);
+        return data;
+    });
+}
+
+export function updatePoll(id, pollData) {
+    const { fetchApi } = useFetchApi();
+
+    return fetchApi({ url: `/polls/${id}`, method: 'PATCH', data: pollData }).then((data) => {
+        const index = polls.value.findIndex((p) => p.id === id);
+        if (index !== -1) polls.value[index] = data;
         return data;
     });
 }

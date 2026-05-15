@@ -1,33 +1,27 @@
 <script setup>
-  import { watch } from 'vue';
   import PollTable from './components/PollTable.vue';
   import CreatePollDialog from './components/CreatePollDialog.vue';
+  import EditPollDialog from './components/EditPollDialog.vue';
   import { useFetchApi } from './composables/useFetchApi';
   import { usePolling } from './composables/usePolling';
-  import { showCreateDialog } from './store/polls';
+  import { polls, showCreateDialog, showEditDialog } from './store/polls';
 
   const props = defineProps({
     loginUrl: { type: String, required: true },
   });
 
-  const { fetchApiToRef } = useFetchApi();
+  const { fetchApi } = useFetchApi();
 
-  const { data: getResult, error: getError, fetchNow } = fetchApiToRef({ url: 'polls/' });
-  const { data: postResult, error: postError } = fetchApiToRef({ url: '/foo', data: { id: 1 } });
-
-  function handleError(err) {
-    if (!err) return;
-    if (err?.status === 401) {
-      window.location.href = props.loginUrl;
-    } else {
-      console.error(err);
+  async function refreshPolls() {
+    try {
+      polls.value = await fetchApi({ url: 'polls/' });
+    } catch (err) {
+      if (err?.status === 401) window.location.href = props.loginUrl;
     }
   }
 
-  watch(getError, err => handleError(err));
-  watch(postError, handleError);
-
-  usePolling(fetchNow);
+  refreshPolls();
+  usePolling(refreshPolls);
 </script>
 
 <template>
@@ -40,6 +34,10 @@
 
     <q-dialog v-model="showCreateDialog">
       <CreatePollDialog />
+    </q-dialog>
+
+    <q-dialog v-model="showEditDialog">
+      <EditPollDialog />
     </q-dialog>
   </main>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { deletePoll, startPoll, polls } from '@/store/polls';
+import { deletePoll, startPoll, polls, showEditDialog, pollToEdit } from '@/store/polls';
 import { useQuasar } from 'quasar';
 
 const $q = useQuasar();
@@ -76,7 +76,13 @@ function copyShareLink(poll) {
             title="Copier le lien de partage"
             @click="copyShareLink(poll)"
           />
-          <q-btn round flat color="primary" icon="edit" title="Modifier" />
+          <q-btn
+            round flat
+            color="primary"
+            icon="edit"
+            title="Modifier"
+            @click="pollToEdit = poll; showEditDialog = true"
+          />
           <q-btn round flat color="negative" icon="delete" title="Supprimer" @click="handleDelete(poll)" />
         </td>
       </tr>
