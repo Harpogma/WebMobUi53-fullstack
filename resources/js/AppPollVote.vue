@@ -33,7 +33,7 @@ onMounted(async () => {
 const isActive    = computed(() => poll.value && !poll.value.is_draft);
 const isEnded     = computed(() => poll.value?.ends_at && new Date(poll.value.ends_at) < new Date());
 const canVote     = computed(() => isActive.value && !isEnded.value && !!props.authUserId && !voted.value);
-const showResults = computed(() => poll.value?.results_public && (voted.value || isEnded.value));
+const showResults = computed(() => poll.value?.results_public);
 
 const totalVotes = computed(() => {
   if (!poll.value?.options) return 0;
@@ -115,15 +115,17 @@ async function submitVote() {
           <p class="text-grey">Ce sondage n'est pas encore ouvert aux votes.</p>
         </q-card-section>
 
-        <!-- Active: show vote form or results -->
-        <q-card-section v-else class="q-gutter-sm">
-
-          <!-- Results view -->
-          <template v-if="showResults">
+        <template v-else>
+          <!-- Results (always visible when results_public is true) -->
+          <q-card-section v-if="showResults" class="q-gutter-sm">
+            <div v-if="totalVotes === 0" class="text-grey q-mb-sm">Aucun vote pour l'instant.</div>
             <div v-for="option in poll.options" :key="option.id">
               <div class="row items-center justify-between q-mb-xs">
                 <span>{{ option.label }}</span>
-                <span class="text-grey text-caption">{{ option.votes_count ?? 0 }} vote{{ (option.votes_count ?? 0) !== 1 ? 's' : '' }}</span>
+                <span class="text-grey text-caption">
+                  {{ option.votes_count ?? 0 }} vote{{ (option.votes_count ?? 0) !== 1 ? 's' : '' }}
+                  <span v-if="totalVotes > 0"> ({{ votePercent(option) }}%)</span>
+                </span>
               </div>
               <q-linear-progress
                 :value="votePercent(option) / 100"
@@ -135,10 +137,12 @@ async function submitVote() {
               />
             </div>
             <p class="text-caption text-grey">{{ totalVotes }} vote{{ totalVotes !== 1 ? 's' : '' }} au total</p>
-          </template>
+          </q-card-section>
+
+          <q-separator v-if="showResults && (canVote || !authUserId)" />
 
           <!-- Vote form -->
-          <template v-else-if="canVote">
+          <q-card-section v-if="canVote" class="q-gutter-sm">
             <p class="text-caption text-grey q-mb-sm">
               {{ poll.allow_multiple_choices ? 'Plusieurs choix possibles' : 'Un seul choix possible' }}
             </p>
@@ -173,24 +177,29 @@ async function submitVote() {
                 @click="submitVote"
               />
             </div>
-          </template>
+          </q-card-section>
 
-          <!-- Not logged in -->
-          <template v-else-if="!authUserId">
+          <!-- Not logged in and results private: show login prompt -->
+          <q-card-section v-else-if="!authUserId && !showResults">
             <p class="text-grey">Vous devez être connecté pour voter.</p>
             <q-btn flat color="primary" label="Se connecter" :href="loginUrl" />
-          </template>
+          </q-card-section>
 
-          <!-- Already voted, results private -->
-          <template v-else-if="voted">
+          <!-- Not logged in but results shown: just offer login to vote -->
+          <q-card-section v-else-if="!authUserId">
+            <q-btn flat color="primary" label="Se connecter pour voter" :href="loginUrl" />
+          </q-card-section>
+
+          <!-- Voted, results private -->
+          <q-card-section v-else-if="voted && !showResults">
             <p class="text-positive">Vote enregistré. Les résultats sont privés.</p>
-          </template>
+          </q-card-section>
 
           <!-- Poll ended, results private -->
-          <template v-else>
+          <q-card-section v-else-if="!showResults">
             <p class="text-grey">Ce sondage est terminé.</p>
-          </template>
-        </q-card-section>
+          </q-card-section>
+        </template>
       </template>
 
     </q-card>

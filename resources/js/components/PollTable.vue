@@ -1,5 +1,5 @@
 <script setup>
-import { deletePoll, startPoll, polls, showEditDialog, pollToEdit } from '@/store/polls';
+import { deletePoll, startPoll, polls, showEditDialog, pollToEdit, showResultsDialog, pollToViewResults } from '@/store/polls';
 import { useQuasar } from 'quasar';
 
 const $q = useQuasar();
@@ -68,6 +68,14 @@ function copyShareLink(poll) {
             icon="play_arrow"
             title="Démarrer le sondage"
             @click="handleStart(poll)"
+          />
+          <q-btn
+            v-if="!poll.is_draft"
+            round flat
+            color="secondary"
+            icon="bar_chart"
+            title="Voir les résultats"
+            @click="pollToViewResults = poll; showResultsDialog = true"
           />
           <q-btn
             round flat
