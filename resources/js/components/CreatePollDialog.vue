@@ -13,6 +13,7 @@ const resultsPublic = ref(false);
 const durationMinutes = ref(null);
 const startNow = ref(false);
 
+const validationErrors = ref({});
 const createdPoll = ref(null);
 const shareUrl = computed(() =>
   createdPoll.value ? `${window.location.origin}/polls/${createdPoll.value.secret_token}` : ''
@@ -32,6 +33,7 @@ function removeOption(index) {
 
 async function handleSubmit() {
   if (!canSubmit.value) return;
+  validationErrors.value = {};
   try {
     const poll = await createPoll({
       question: question.value.trim(),
@@ -43,9 +45,13 @@ async function handleSubmit() {
       start_now: startNow.value,
     });
     createdPoll.value = poll;
-  } catch (error) {
-    console.error('Error creating poll:', error);
-    $q.notify({ message: 'Erreur lors de la création du sondage.', color: 'negative', position: 'top' });
+  } catch (err) {
+    if (err?.status === 422 && err?.data?.errors) {
+      validationErrors.value = err.data.errors;
+    } else {
+      const msg = err?.data?.message ?? 'Erreur lors de la création du sondage.';
+      $q.notify({ message: msg, color: 'negative', position: 'top' });
+    }
   }
 }
 
@@ -74,6 +80,7 @@ function handleClose() {
   durationMinutes.value = null;
   startNow.value = false;
   createdPoll.value = null;
+  validationErrors.value = {};
   showCreateDialog.value = false;
 }
 </script>
@@ -117,13 +124,21 @@ function handleClose() {
       </q-card-section>
 
       <q-card-section class="q-pt-none q-gutter-md">
-        <q-input v-model="title" label="Titre (optionnel)" outlined />
+        <q-input
+          v-model="title"
+          label="Titre (optionnel)"
+          outlined
+          :error="!!validationErrors.title"
+          :error-message="validationErrors.title?.[0]"
+        />
 
         <q-input
           v-model="question"
           label="Question *"
           outlined
           :rules="[val => !!val.trim() || 'La question est obligatoire']"
+          :error="!!validationErrors.question"
+          :error-message="validationErrors.question?.[0]"
         />
 
         <div>
@@ -139,6 +154,8 @@ function handleClose() {
               outlined
               dense
               class="col"
+              :error="!!validationErrors[`options.${i}`]"
+              :error-message="validationErrors[`options.${i}`]?.[0]"
             />
             <q-btn
               flat round dense
@@ -165,6 +182,8 @@ function handleClose() {
           outlined
           min="1"
           clearable
+          :error="!!validationErrors.duration"
+          :error-message="validationErrors.duration?.[0]"
         />
 
         <q-toggle v-model="startNow" label="Démarrer immédiatement" />

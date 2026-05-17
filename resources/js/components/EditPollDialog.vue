@@ -11,6 +11,11 @@ const options = ref([]);
 const allowMultipleChoices = ref(false);
 const resultsPublic = ref(false);
 const durationMinutes = ref(null);
+const validationErrors = ref({});
+
+watch(showEditDialog, (open) => {
+  if (!open) validationErrors.value = {};
+});
 
 watch(
   pollToEdit,
@@ -40,6 +45,7 @@ function removeOption(index) {
 
 async function handleSubmit() {
   if (!canSubmit.value) return;
+  validationErrors.value = {};
   try {
     await updatePoll(pollToEdit.value.id, {
       question: question.value.trim(),
@@ -54,8 +60,12 @@ async function handleSubmit() {
     $q.notify({ message: 'Sondage modifié !', color: 'positive', position: 'top' });
     showEditDialog.value = false;
   } catch (err) {
-    const msg = err?.data?.message ?? 'Erreur lors de la modification.';
-    $q.notify({ message: msg, color: 'negative', position: 'top' });
+    if (err?.status === 422 && err?.data?.errors) {
+      validationErrors.value = err.data.errors;
+    } else {
+      const msg = err?.data?.message ?? 'Erreur lors de la modification.';
+      $q.notify({ message: msg, color: 'negative', position: 'top' });
+    }
   }
 }
 </script>
@@ -67,13 +77,21 @@ async function handleSubmit() {
     </q-card-section>
 
     <q-card-section class="q-pt-none q-gutter-md">
-      <q-input v-model="title" label="Titre (optionnel)" outlined />
+      <q-input
+        v-model="title"
+        label="Titre (optionnel)"
+        outlined
+        :error="!!validationErrors.title"
+        :error-message="validationErrors.title?.[0]"
+      />
 
       <q-input
         v-model="question"
         label="Question *"
         outlined
         :rules="[val => !!val.trim() || 'La question est obligatoire']"
+        :error="!!validationErrors.question"
+        :error-message="validationErrors.question?.[0]"
       />
 
       <div>
@@ -89,6 +107,8 @@ async function handleSubmit() {
             outlined
             dense
             class="col"
+            :error="!!validationErrors[`options.${i}.label`]"
+            :error-message="validationErrors[`options.${i}.label`]?.[0]"
           />
           <q-btn
             flat round dense
@@ -115,6 +135,8 @@ async function handleSubmit() {
         outlined
         min="1"
         clearable
+        :error="!!validationErrors.duration"
+        :error-message="validationErrors.duration?.[0]"
       />
     </q-card-section>
 
