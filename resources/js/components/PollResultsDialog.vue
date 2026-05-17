@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { useFetchApi } from '@/composables/useFetchApi';
 import { pollToViewResults, showResultsDialog } from '@/store/polls';
+import PollBarChart from '@/components/PollBarChart.vue';
 
 const { fetchApi } = useFetchApi();
 
@@ -57,22 +58,7 @@ function votePercent(option) {
 
       <div v-if="totalVotes === 0" class="text-grey q-mb-md">Aucun vote pour l'instant.</div>
 
-      <div v-for="option in poll.options" :key="option.id" class="q-mb-md">
-        <div class="row items-center justify-between q-mb-xs">
-          <span>{{ option.label }}</span>
-          <span class="text-caption text-grey">
-            {{ option.votes_count ?? 0 }} vote{{ (option.votes_count ?? 0) !== 1 ? 's' : '' }}
-            <span v-if="totalVotes > 0"> ({{ votePercent(option) }}%)</span>
-          </span>
-        </div>
-        <q-linear-progress
-          :value="votePercent(option) / 100"
-          color="primary"
-          track-color="grey-3"
-          rounded
-          style="height: 12px"
-        />
-      </div>
+      <PollBarChart v-else :options="poll.options" />
 
       <p class="text-caption text-grey q-mt-sm">
         {{ totalVotes }} vote{{ totalVotes !== 1 ? 's' : '' }} au total

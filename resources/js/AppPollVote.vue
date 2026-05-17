@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useFetchApi } from '@/composables/useFetchApi';
 import { usePolling } from '@/composables/usePolling';
 import { useQuasar } from 'quasar';
+import PollBarChart from '@/components/PollBarChart.vue';
 
 const props = defineProps({
   token:      { type: String,  required: true },
@@ -46,10 +47,6 @@ const totalVotes = computed(() => {
   return poll.value.options.reduce((sum, o) => sum + (o.votes_count ?? 0), 0);
 });
 
-function votePercent(option) {
-  if (!totalVotes.value) return 0;
-  return Math.round(((option.votes_count ?? 0) / totalVotes.value) * 100);
-}
 
 const effectiveSelected = computed(() =>
   poll.value?.allow_multiple_choices
@@ -123,26 +120,10 @@ async function submitVote() {
 
         <template v-else>
           <!-- Results (always visible when results_public is true) -->
-          <q-card-section v-if="showResults" class="q-gutter-sm">
+          <q-card-section v-if="showResults">
             <div v-if="totalVotes === 0" class="text-grey q-mb-sm">Aucun vote pour l'instant.</div>
-            <div v-for="option in poll.options" :key="option.id">
-              <div class="row items-center justify-between q-mb-xs">
-                <span>{{ option.label }}</span>
-                <span class="text-grey text-caption">
-                  {{ option.votes_count ?? 0 }} vote{{ (option.votes_count ?? 0) !== 1 ? 's' : '' }}
-                  <span v-if="totalVotes > 0"> ({{ votePercent(option) }}%)</span>
-                </span>
-              </div>
-              <q-linear-progress
-                :value="votePercent(option) / 100"
-                color="primary"
-                track-color="grey-3"
-                rounded
-                class="q-mb-md"
-                style="height: 12px"
-              />
-            </div>
-            <p class="text-caption text-grey">{{ totalVotes }} vote{{ totalVotes !== 1 ? 's' : '' }} au total</p>
+            <PollBarChart v-else :options="poll.options" />
+            <p class="text-caption text-grey q-mt-sm">{{ totalVotes }} vote{{ totalVotes !== 1 ? 's' : '' }} au total</p>
           </q-card-section>
 
           <q-separator v-if="showResults && (canVote || !authUserId)" />
