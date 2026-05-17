@@ -37,7 +37,9 @@ usePolling(refreshPoll);
 const isActive    = computed(() => poll.value && !poll.value.is_draft);
 const isEnded     = computed(() => poll.value?.ends_at && new Date(poll.value.ends_at) < new Date());
 const canVote     = computed(() => isActive.value && !isEnded.value && !!props.authUserId && !voted.value);
-const showResults = computed(() => poll.value?.results_public);
+const showResults = computed(() =>
+  poll.value?.results_public || props.authUserId === poll.value?.user_id
+);
 
 const totalVotes = computed(() => {
   if (!poll.value?.options) return 0;

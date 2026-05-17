@@ -32,6 +32,16 @@ class ApiPollController extends Controller
             return response()->json(['message' => 'Poll not found.'], 404);
         }
 
+        $authUser = auth('sanctum')->user();
+        $canSeeResults = $poll->results_public
+            || ($authUser && $authUser->id === $poll->user_id);
+
+        if (!$canSeeResults) {
+            $poll->setRelation('options', $poll->options->map(function ($option) {
+                return $option->makeHidden('votes_count');
+            }));
+        }
+
         return $poll;
     }
 
