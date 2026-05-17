@@ -8,9 +8,16 @@ Suisse.
 
 ## Objectif du mini-projet
 
-L'objectif de ce mini-projet est de créer un réseau social simple en utilisant le
+L'objectif de ce mini-projet est de créer une application de sondages en utilisant le
 framework [Laravel](https://laravel.com/). Ce projet permettra de mettre en pratique les concepts
 appris dans le cours.
+
+## Choix techniques
+
+- **Laravel** — framework PHP choisi pour sa simplicité et son écosystème complet (authentification, migrations, seeding).
+- **Vue.js / Quasar** — framework frontend réactif avec des composants UI prêts à l'emploi, intégré via Inertia.js.
+- **Chart.js** — bibliothèque légère pour afficher les résultats des sondages sous forme de graphiques.
+- **SQLite** (par défaut) — base de données embarquée, sans configuration requise pour le développement local.
 
 ## Pré-requis
 
@@ -24,7 +31,7 @@ Voici les pré-requis nécessaires :
 - Une base de données (MySQL, PostgreSQL, SQLite, etc.).
 - Un serveur web (Apache, Nginx, etc.).
 
-[Laravel Herd](https://helm.sh/docs/charts/laravel/) est recommandé pour une installation facile de Laravel et de ses dépendances.
+[Laravel Herd](https://herd.laravel.com) est recommandé pour une installation facile de Laravel et de ses dépendances.
 
 ## Développement local
 
